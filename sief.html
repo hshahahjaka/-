@@ -10,6 +10,7 @@
             --primary-color: #2c3e50;
             --gold-color: #c5a059;
             --bg-color: #fcfbf7;
+            --accent-red: #a93226;
         }
 
         body {
@@ -30,11 +31,11 @@
             border: 5px solid white; margin-top: -80px;
             background-color: #eee; object-fit: cover;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1;
         }
 
         .container { max-width: 800px; width: 92%; margin: 20px auto; text-align: center; }
 
-        /* برواز سورة الفاتحة */
         .quran-frame {
             border: 2px solid var(--gold-color); background: #fff;
             padding: 30px; margin: 30px 0; border-radius: 10px;
@@ -42,7 +43,37 @@
         .quran-text { font-family: 'Lateef', cursive; font-size: 2.2rem; line-height: 1.8; color: #1a1a1a; }
         .bismillah { font-size: 2.5rem; display: block; margin-bottom: 15px; color: var(--gold-color); }
 
-        /* الأذكار */
+        /* التحكم في الصوت */
+        .audio-controls {
+            background: #f1f1f1; padding: 15px; border-radius: 50px;
+            display: inline-flex; gap: 20px; align-items: center;
+            margin-bottom: 25px; border: 1px solid #ddd;
+        }
+        .control-btn {
+            background: none; border: none; cursor: pointer; font-family: 'Amiri';
+            font-size: 1.1rem; color: var(--primary-color); font-weight: bold;
+        }
+        .stop-btn { color: var(--accent-red); }
+
+        /* قسم سور القرآن */
+        .quran-audio-section {
+            background: #fff; padding: 25px; border-radius: 15px;
+            margin-bottom: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .audio-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
+            gap: 12px; margin-top: 15px; 
+        }
+        .surah-btn {
+            background: #f9f9f9; border: 1px solid #eee;
+            padding: 12px 5px; border-radius: 8px; cursor: pointer;
+            font-family: 'Amiri'; font-weight: bold; transition: 0.2s;
+            font-size: 0.95rem;
+        }
+        .surah-btn:hover { background: var(--gold-color); color: white; border-color: var(--gold-color); }
+        .surah-btn.playing { background: var(--primary-color); color: white; }
+
         .azkar-section { margin-top: 40px; background: white; border-radius: 15px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
         .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .tab-btn {
@@ -54,7 +85,6 @@
         .azkar-content.active { display: block; }
         .zekr-item { border-bottom: 1px solid #f0f0f0; padding: 15px 0; line-height: 1.6; font-size: 1.1rem; }
 
-        /* أزرار العدادات */
         .zikr-container { display: flex; gap: 15px; justify-content: center; margin: 30px 0; flex-wrap: wrap; }
         .zikr-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); min-width: 180px; border-bottom: 4px solid var(--gold-color); }
         .count-val { font-size: 2.5rem; display: block; color: var(--primary-color); font-weight: bold; }
@@ -63,7 +93,7 @@
         footer { padding: 40px; color: #888; text-align: center; }
     </style>
 </head>
-<body>
+<body onclick="playInitial()">
 
     <header>
         <h1>سيف الدين متولي</h1>
@@ -80,6 +110,28 @@
                 الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝ الرَّحْمَنِ الرَّحِيمِ ۝ مَالِكِ يَوْمِ الدِّينِ ۝ إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝ اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ۝ صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ
             </div>
         </div>
+
+        <div class="audio-controls">
+            <span id="nowPlaying" style="font-size: 0.9rem; color: #555;">تشغيل تلقائي: الفاتحة</span>
+            <button class="control-btn stop-btn" onclick="stopAudio()">⏹ إيقاف</button>
+            <button class="control-btn" id="muteBtn" onclick="toggleMute()">🔈 كتم</button>
+        </div>
+
+        <div class="quran-audio-section">
+            <h3 style="margin-top:0; color: var(--primary-color);">تلاوات الحصري (مرتل)</h3>
+            <div class="audio-grid">
+                <button class="surah-btn" onclick="playAudio('https://server13.mp3quran.net/husr/001.mp3', 'سورة الفاتحة')">الفاتحة</button>
+                <button class="surah-btn" onclick="playAudio('https://server13.mp3quran.net/husr/018.mp3', 'سورة الكهف')">الكهف</button>
+                <button class="surah-btn" onclick="playAudio('https://server13.mp3quran.net/husr/036.mp3', 'سورة يس')">يس</button>
+                <button class="surah-btn" onclick="playAudio('https://server13.mp3quran.net/husr/044.mp3', 'سورة الدخان')">الدخان</button>
+                <button class="surah-btn" onclick="playAudio('https://server13.mp3quran.net/husr/055.mp3', 'سورة الرحمن')">الرحمن</button>
+                <button class="surah-btn" onclick="playAudio('https://server13.mp3quran.net/husr/056.mp3', 'سورة الواقعة')">الواقعة</button>
+                <button class="surah-btn" onclick="playAudio('https://server13.mp3quran.net/husr/067.mp3', 'سورة الملك')">الملك</button>
+                <button class="surah-btn" onclick="playAudio('https://server13.mp3quran.net/husr/112.mp3', 'سورة الإخلاص')">الإخلاص</button>
+            </div>
+        </div>
+
+        <audio id="mainAudio" src="https://server13.mp3quran.net/husr/001.mp3"></audio>
 
         <div class="zikr-container">
             <div class="zikr-card">
@@ -102,14 +154,12 @@
                 <div class="zekr-item">● أصبحنا وأصبح الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له.</div>
                 <div class="zekr-item">● رضيت بالله ربا، وبالإسلام دينا، وبمحمد صلى الله عليه وسلم نبيا.</div>
                 <div class="zekr-item">● اللهم بك أصبحنا، وبك أمسينا، وبك نحيا، وبك نموت، وإليك النشور.</div>
-                <div class="zekr-item">● يا حي يا قيوم برحمتك أستغيث أصلح لي شأني كله ولا تكلني إلى نفسي طرفة عين.</div>
             </div>
 
             <div id="evening" class="azkar-content">
                 <div class="zekr-item">● أمسينا وأمسى الملك لله، والحمد لله، لا إله إلا الله وحده لا شريك له.</div>
                 <div class="zekr-item">● اللهم بك أمسينا، وبك أصبحنا، وبك نحيا، وبك نموت، وإليك المصير.</div>
                 <div class="zekr-item">● أعوذ بكلمات الله التامات من شر ما خلق.</div>
-                <div class="zekr-item">● اللهم ما أمسى بي من نعمة أو بأحد من خلقك فمنك وحدك لا شريك لك.</div>
             </div>
         </div>
     </div>
@@ -119,6 +169,44 @@
     </footer>
 
     <script>
+        let audioPlayer = document.getElementById('mainAudio');
+        let infoText = document.getElementById('nowPlaying');
+        let hasStarted = false;
+
+        // بدء التشغيل عند أول نقرة
+        function playInitial() {
+            if (!hasStarted) {
+                audioPlayer.play();
+                hasStarted = true;
+            }
+        }
+
+        // تشغيل سورة محددة
+        function playAudio(url, name) {
+            audioPlayer.src = url;
+            audioPlayer.play();
+            infoText.innerText = "جاري تشغيل: " + name;
+            hasStarted = true;
+            
+            // تمييز الزر المختار
+            document.querySelectorAll('.surah-btn').forEach(btn => btn.classList.remove('playing'));
+            event.currentTarget.classList.add('playing');
+        }
+
+        // إيقاف الصوت تماماً
+        function stopAudio() {
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            infoText.innerText = "تم الإيقاف";
+            document.querySelectorAll('.surah-btn').forEach(btn => btn.classList.remove('playing'));
+        }
+
+        // كتم الصوت
+        function toggleMute() {
+            audioPlayer.muted = !audioPlayer.muted;
+            document.getElementById('muteBtn').innerText = audioPlayer.muted ? "🔊 تشغيل" : "🔈 كتم";
+        }
+
         function add(id) {
             let el = document.getElementById(id);
             el.innerText = parseInt(el.innerText) + 1;
